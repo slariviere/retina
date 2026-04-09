@@ -1,12 +1,11 @@
-{{- if .Values.agent.enabled -}}
+{{- if and .Values.agent.enabled .Values.serviceAccount.create -}}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  namespace: {{ .Values.namespace }}
   name: retina-cluster-reader
 rules:
   - apiGroups: [""] # "" indicates the core API group
-    resources: ["pods", "services", "replicationcontrollers", "nodes", "namespaces"]
+    resources: ["pods", "services", "replicationcontrollers", "nodes", "namespaces", "endpoints"]
     verbs: ["get", "watch", "list"]
   - apiGroups: ["apps"]
     resources: ["deployments", "replicasets"]
@@ -32,15 +31,6 @@ rules:
     - get
     - list
     - watch
-  - apiGroups:
-    - ""
-    resources:
-      - namespaces
-      - endpoints
-    verbs:
-      - get
-      - list
-      - watch
   {{- if .Values.operator.enabled }}
   - apiGroups:
       - retina.sh
