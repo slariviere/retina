@@ -17,7 +17,7 @@ spec:
   selector:
     matchLabels:
       control-plane: retina-operator
-  replicas: 1
+  replicas: {{ .Values.operator.replicas }}
   template:
     metadata:
       annotations:
@@ -56,7 +56,7 @@ spec:
           {{- end }}
           {{ else }}
           command:
-            - /retina-operator  
+            - /retina-operator
           {{- end }}
           {{- if .Values.operator.container.args}}
           args:
