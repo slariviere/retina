@@ -26,6 +26,7 @@ import (
 	"github.com/cilium/cilium/pkg/option"
 	"github.com/cilium/hive/cell"
 	"github.com/microsoft/retina/internal/buildinfo"
+	"github.com/microsoft/retina/operator/cilium-crds/config"
 	"github.com/microsoft/retina/pkg/log"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
@@ -64,13 +65,19 @@ func Execute(h *hive.Hive) {
 func registerOperatorHooks(
 	l *slog.Logger, lc cell.Lifecycle, llc *LeaderLifecycle,
 	clientset k8sClient.Clientset, shutdowner hive.Shutdowner,
-) {
+	cfg config.Config,
+) error {
+	leaderElectionNamespace, err := resolveNamespace(cfg.LeaderElectionNamespace)
+	if err != nil {
+		return fmt.Errorf("failed to determine operator namespace: %w", err)
+	}
+	l.Info("using namespace for leader election lease", "namespace", leaderElectionNamespace)
 	var wg sync.WaitGroup
 	lc.Append(cell.Hook{
 		OnStart: func(cell.HookContext) error {
 			wg.Add(1)
 			go func() {
-				runOperator(l, llc, clientset, shutdowner)
+				runOperator(l, llc, clientset, shutdowner, leaderElectionNamespace)
 				wg.Done()
 			}()
 			return nil
@@ -84,6 +91,7 @@ func registerOperatorHooks(
 			return nil
 		},
 	})
+	return nil
 }
 
 func initEnv(vp *viper.Viper) {
@@ -134,7 +142,7 @@ func doCleanup() {
 // runOperator implements the logic of leader election for cilium-operator using
 // built-in leader election capability in kubernetes.
 // See: https://github.com/kubernetes/client-go/blob/master/examples/leader-election/main.go
-func runOperator(l *slog.Logger, lc *LeaderLifecycle, clientset k8sClient.Clientset, shutdowner hive.Shutdowner) {
+func runOperator(l *slog.Logger, lc *LeaderLifecycle, clientset k8sClient.Clientset, shutdowner hive.Shutdowner, leaderElectionNamespace string) {
 	isLeader.Store(false)
 
 	leaderElectionCtx, leaderElectionCtxCancel = context.WithCancel(context.Background())
@@ -152,7 +160,7 @@ func runOperator(l *slog.Logger, lc *LeaderLifecycle, clientset k8sClient.Client
 
 	leResourceLock, err := resourcelock.NewFromKubeconfig(
 		resourcelock.LeasesResourceLock,
-		operatorK8sNamespace,
+		leaderElectionNamespace,
 		leaderElectionResourceLockName,
 		resourcelock.ResourceLockConfig{
 			// Identity name of the lock holder
