@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/part-of: operator
     app.kubernetes.io/managed-by: kustomize
   name: retina-operator-rolebinding
-  namespace: kube-system
+  namespace: {{ .Values.operator.leaderElectionNamespace | default .Release.Namespace }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role

@@ -66,6 +66,9 @@ spec:
           {{ else }}
           args:
             - --config-dir=/retina
+            {{- if .Values.operator.leaderElectionNamespace }}
+            - --leader-election-namespace={{ .Values.operator.leaderElectionNamespace }}
+            {{- end }}
           {{- end}}
           env:
           # this env var is used by retina OSS telemetry and zap

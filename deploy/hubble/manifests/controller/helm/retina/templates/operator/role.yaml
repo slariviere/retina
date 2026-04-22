@@ -3,7 +3,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: retina-operator-role
-  namespace: kube-system
+  namespace: {{ .Values.operator.leaderElectionNamespace | default .Release.Namespace }}
 rules:
   # For cilium-operator running in HA mode.
   #
