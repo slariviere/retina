@@ -832,6 +832,23 @@ hubble:
       #    hosts:
       #      - chart-example.local
 
+    # -- hubble-ui HTTPRoute configuration (Gateway API).
+    # Requires Kubernetes 1.26+ or Gateway API CRDs to be pre-installed.
+    httpRoute:
+      enabled: false
+      annotations: {}
+      labels: {}
+      # -- Parent Gateways that this route is attached to.
+      parentRefs:
+        - name: example-gateway
+          namespace: default
+          sectionName: example-listener
+      # -- Hostnames for this HTTPRoute.
+      hostnames:
+        - chart-example.local
+      # -- Backend port number. Defaults to the service port (80).
+      port: ~
+
   # -- Hubble flows export.
   export:
     # --- Defines max file size of output file before it gets rotated.
