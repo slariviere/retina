@@ -1,0 +1,21 @@
+{{- if and (or .Values.hubble.enabled .Values.hubble.relay.standalone.enabled) .Values.hubble.relay.enabled .Values.hubble.relay.grpcRoute.enabled .Values.hubble.relay.tls.server.enabled .Values.hubble.relay.backendTLSPolicy.enabled }}
+apiVersion: gateway.networking.k8s.io/v1alpha3
+kind: BackendTLSPolicy
+metadata:
+  name: hubble-relay
+  namespace: {{ .Release.Namespace }}
+spec:
+  targetRefs:
+    - group: ""
+      kind: Service
+      name: hubble-relay
+      {{- if .Values.hubble.relay.backendTLSPolicy.sectionName }}
+      sectionName: {{ .Values.hubble.relay.backendTLSPolicy.sectionName | quote }}
+      {{- end }}
+  validation:
+    caCertificateRefs:
+      - group: ""
+        kind: ConfigMap
+        name: hubble-relay-ca
+    hostname: {{ .Values.hubble.relay.tls.server.relayName | default "ui.hubble-relay.cilium.io" | quote }}
+{{- end }}

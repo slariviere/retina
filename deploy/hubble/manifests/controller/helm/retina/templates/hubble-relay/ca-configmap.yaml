@@ -1,0 +1,10 @@
+{{- if and (or .Values.hubble.enabled .Values.hubble.relay.standalone.enabled) .Values.hubble.relay.enabled .Values.hubble.relay.backendTLSPolicy.enabled .Values.hubble.relay.tls.ca.cert }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hubble-relay-ca
+  namespace: {{ .Release.Namespace }}
+data:
+  ca.crt: |
+{{ .Values.hubble.relay.tls.ca.cert | indent 4 }}
+{{- end }}

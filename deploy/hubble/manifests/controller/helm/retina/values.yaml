@@ -528,6 +528,37 @@ hubble:
       # by being built into the Service API and offering more predictable routing behavior.
       # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
       trafficDistribution: ""
+      appProtocol: "grpc"
+
+    # -- hubble-relay GRPCRoute configuration (Gateway API).
+    # Requires Kubernetes 1.26+ or Gateway API CRDs to be pre-installed.
+    # GRPCRoute is used instead of HTTPRoute to ensure proper HTTP/2 ALPN negotiation for gRPC traffic.
+    grpcRoute:
+      enabled: false
+      annotations: {}
+      labels: {}
+      # -- Parent Gateways that this route is attached to.
+      parentRefs:
+        - name: example-gateway
+          namespace: default
+          sectionName: example-listener
+      # -- Hostnames for this GRPCRoute.
+      hostnames:
+        - chart-example.local
+      # -- Backend port number. Defaults to the service port (80 for plain, 443 for TLS).
+      port: ~
+
+    # -- hubble-relay BackendTLSPolicy configuration (Gateway API).
+    # Configures the Gateway API implementation to use TLS when connecting to the hubble-relay backend.
+    # Requires hubble.relay.tls.server.enabled=true and hubble.relay.grpcRoute.enabled=true.
+    backendTLSPolicy:
+      # -- Enable BackendTLSPolicy for hubble-relay.
+      enabled: false
+      # -- sectionName targets a specific named port on the hubble-relay Service.
+      # When empty (default), the policy targets the entire Service, allowing GRPCRoute
+      # to reference ports by number while BackendTLSPolicy still applies.
+      # Set this to a port name (e.g., "grpc") only if you need port-specific targeting.
+      sectionName: ""
 
     # -- Host to listen to. Specify an empty string to bind to all the interfaces.
     listenHost: ""
@@ -566,6 +597,12 @@ hubble:
         # See https://github.com/cilium/cilium/pull/28709#discussion_r1371792546
         # For GKE Dataplane V2 this should be set to relay.kube-system.svc.cluster.local
         relayName: "ui.hubble-relay.cilium.io"
+      # -- CA certificate for verifying the hubble-relay server certificate
+      # Used by BackendTLSPolicy to establish trust with the relay backend
+      # This should be the PEM-encoded CA certificate (not base64 encoded)
+      ca:
+        # -- PEM-encoded CA certificate
+        cert: ""
 
     # -- Dial timeout to connect to the local hubble instance to receive peer information (e.g. "30s").
     dialTimeout: ~
