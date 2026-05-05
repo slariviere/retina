@@ -529,6 +529,24 @@ hubble:
       # See https://kubernetes.io/docs/concepts/services-networking/service/#traffic-distribution
       trafficDistribution: ""
 
+    # -- hubble-relay HTTPRoute configuration (Gateway API).
+    # Requires Kubernetes 1.26+ or Gateway API CRDs to be pre-installed.
+    httpRoute:
+      enabled: false
+      annotations: {}
+      labels: {}
+      # -- Parent Gateways that this route is attached to.
+      parentRefs:
+        - name: example-gateway
+          namespace: default
+          sectionName: example-listener
+      # -- Hostnames for this HTTPRoute.
+      hostnames:
+        - chart-example.local
+      # -- Backend port number. Defaults to the service port (80).
+      port: ~
+      baseUrl: "/"
+
     # -- Host to listen to. Specify an empty string to bind to all the interfaces.
     listenHost: ""
 
