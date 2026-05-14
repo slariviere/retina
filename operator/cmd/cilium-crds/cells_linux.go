@@ -8,8 +8,11 @@ package ciliumcrds
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
+	"strings"
 	"sync/atomic"
 
 	"github.com/microsoft/retina/internal/buildinfo"
@@ -42,7 +45,27 @@ import (
 	"github.com/cilium/statedb"
 )
 
-const operatorK8sNamespace = "kube-system"
+const (
+	serviceAccountNamespaceFile = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
+	errMsgNamespaceFileEmpty    = "--leader-election-namespace not set and " + serviceAccountNamespaceFile + " was empty"
+)
+
+var errNamespaceFileEmpty = errors.New(errMsgNamespaceFileEmpty)
+
+// resolveNamespace returns the namespace the operator should use for leader election.
+func resolveNamespace(override string) (string, error) {
+	if override != "" {
+		return override, nil
+	}
+	data, err := os.ReadFile(serviceAccountNamespaceFile)
+	if err != nil {
+		return "", fmt.Errorf("--leader-election-namespace not set and could not read %s: %w", serviceAccountNamespaceFile, err)
+	}
+	if ns := strings.TrimSpace(string(data)); ns != "" {
+		return ns, nil
+	}
+	return "", errNamespaceFileEmpty
+}
 
 var (
 	Operator = cell.Module(
