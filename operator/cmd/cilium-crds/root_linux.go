@@ -67,9 +67,9 @@ func registerOperatorHooks(
 	clientset k8sClient.Clientset, shutdowner hive.Shutdowner,
 	cfg config.Config,
 ) error {
-	leaderElectionNamespace, err := resolveNamespace(cfg.LeaderElectionNamespace)
-	if err != nil {
-		return fmt.Errorf("failed to determine operator namespace: %w", err)
+	leaderElectionNamespace := cfg.LeaderElectionNamespace
+	if leaderElectionNamespace == "" {
+		return fmt.Errorf("--leader-election-namespace must be set")
 	}
 	l.Info("using namespace for leader election lease", "namespace", leaderElectionNamespace)
 	var wg sync.WaitGroup

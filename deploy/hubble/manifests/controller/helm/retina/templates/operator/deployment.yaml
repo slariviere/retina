@@ -63,15 +63,11 @@ spec:
           {{- range $.Values.operator.container.args}}
           - {{ . | quote }}
           {{- end}}
-          {{- if $.Values.operator.leaderElectionNamespace }}
-          - --leader-election-namespace={{ $.Values.operator.leaderElectionNamespace }}
-          {{- end }}
+          - --leader-election-namespace={{ $.Values.operator.leaderElectionNamespace | default $.Release.Namespace }}
           {{- else }}
           args:
             - --config-dir=/retina
-            {{- if .Values.operator.leaderElectionNamespace }}
-            - --leader-election-namespace={{ .Values.operator.leaderElectionNamespace }}
-            {{- end }}
+            - --leader-election-namespace={{ .Values.operator.leaderElectionNamespace | default .Release.Namespace }}
           {{- end}}
           env:
           # this env var is used by retina OSS telemetry and zap
