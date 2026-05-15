@@ -19,22 +19,22 @@
     "@docusaurus/plugin-ideal-image": "^3.10.1",
     "@docusaurus/preset-classic": "^3.10.1",
     "@mdx-js/react": "^3.1.1",
-    "@types/react": "^18.3.28",
+    "@types/react": "^19.2.14",
     "clsx": "^2.1.1",
     "docusaurus-lunr-search": "^3.6.0",
     "micromatch": "^4.0.8",
     "prism-react-renderer": "^2.4.1",
-    "react": "^18.3.1",
+    "react": "^19.2.5",
     "react-dom": "^19.2.6",
-    "sharp": "^0.33.5"
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.9.2",
     "@docusaurus/tsconfig": "^3.10.1",
     "@docusaurus/types": "^3.10.1",
-    "css-loader": "^7.1.2",
+    "css-loader": "^7.1.4",
     "style-loader": "^4.0.0",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.3"
   },
   "browserslist": {
     "production": [
