@@ -37,10 +37,11 @@ import (
 
 var (
 	// set logger field: subsys=retina-operator
-	binaryName       = filepath.Base(os.Args[0])
-	slogLoggerOnce   sync.Once
-	cachedSlogLogger *slog.Logger
-	operatorIDLength = 10
+	binaryName                         = filepath.Base(os.Args[0])
+	slogLoggerOnce                     sync.Once
+	cachedSlogLogger                   *slog.Logger
+	operatorIDLength                   = 10
+	errLeaderElectionNamespaceRequired = errors.New("--leader-election-namespace must be set")
 )
 
 // slogLogger returns a zap-backed slog logger. Resolved lazily so that
@@ -69,7 +70,7 @@ func registerOperatorHooks(
 ) error {
 	leaderElectionNamespace := cfg.LeaderElectionNamespace
 	if leaderElectionNamespace == "" {
-		return fmt.Errorf("--leader-election-namespace must be set")
+		return errLeaderElectionNamespaceRequired
 	}
 	l.Info("using namespace for leader election lease", "namespace", leaderElectionNamespace)
 	var wg sync.WaitGroup
