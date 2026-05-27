@@ -32,6 +32,7 @@ rules:
       - get
       - list
       - watch
+{{- if .Values.operator.packetCapture.enabled }}
   - apiGroups:
       - batch
     resources:
@@ -51,6 +52,7 @@ rules:
     - jobs/status
     verbs:
     - get
+{{- end }}
   - apiGroups:
     - retina.sh
     resources:
